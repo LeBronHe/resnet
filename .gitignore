@@ -35,3 +35,4 @@
 data/
 build/
 .cache/
+.DS_STORE

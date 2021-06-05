@@ -16,3 +16,5 @@ endif()
 message(CHECK_PASS "done")
 
 add_executable(${PROJECT_NAME} src/main.cxx)
+
+add_subdirectory(src)
