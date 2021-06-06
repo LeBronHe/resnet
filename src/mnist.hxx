@@ -22,6 +22,9 @@ public:
         this->label_format = label_format;
     }
 
+    [[nodiscard]]
+    auto normalize_images(const std::vector<uint8_t>& vec) -> std::vector<float>;
+
     auto operator=(const Mnist&) -> Mnist& = delete;
 
 //private:
@@ -40,6 +43,9 @@ public:
     std::vector<std::uint8_t> train_images;
     std::vector<std::uint8_t> test_labels;
     std::vector<std::uint8_t> test_images;
+
+    std::uint32_t rows;
+    std::uint32_t columns;
 
     constexpr auto swap_bytes(std::uint32_t& x) const -> std::uint32_t {
         x = ((x << 8) & 0xFF00FF00) | ((x >> 8) & 0xFF00FF);

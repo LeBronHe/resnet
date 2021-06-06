@@ -1,10 +1,21 @@
 #include "mnist.hxx"
 
+#include <algorithm>
 #include <fstream>
 #include <stdexcept>
 
+auto Mnist::normalize_images(const std::vector<uint8_t>& vec) -> std::vector<float> {
+    std::vector<float> _vec(vec.size());
+
+    std::transform(vec.begin(), vec.end(), _vec.begin(), [](const auto& pixel) {
+        return pixel / 255.0f;
+    });
+
+    return _vec;
+}
+
 auto Mnist::load_labels(const fs::path& path) -> std::vector<std::uint8_t> {
-    std::vector<std::uint8_t> buffer;
+    std::vector<std::uint8_t> vec;
     
     std::ifstream file(path.c_str(), std::ios::in | std::ios::binary);
     if (!file.is_open()) {
@@ -24,9 +35,9 @@ auto Mnist::load_labels(const fs::path& path) -> std::vector<std::uint8_t> {
     items_count = swap_bytes(items_count);
 
     if (label_format == LabelFormat::SCALAR) {
-        buffer.reserve(items_count);
+        vec.reserve(items_count);
     } else {
-        buffer.assign(items_count * CLASSES, 0);
+        vec.assign(items_count * CLASSES, 0);
     }
 
     for (std::size_t idx = 0; idx < items_count; idx++) {
@@ -34,19 +45,19 @@ auto Mnist::load_labels(const fs::path& path) -> std::vector<std::uint8_t> {
         file.read(reinterpret_cast<char*>(&label), sizeof(label));
 
         if (label_format == LabelFormat::SCALAR) {
-            buffer.push_back(label);
+            vec.push_back(label);
         } else {
-            buffer[(idx * CLASSES) + label] = 1;
+            vec[(idx * CLASSES) + label] = 1;
         }
     }
 
     file.close();
 
-    return buffer;
+    return vec;
 }
 
 auto Mnist::load_images(const fs::path& path) -> std::vector<std::uint8_t> {
-    std::vector<std::uint8_t> buffer;
+    std::vector<std::uint8_t> vec;
 
     std::ifstream file(path.c_str(), std::ios::in | std::ios::binary);
     if (!file.is_open()) {
@@ -65,11 +76,9 @@ auto Mnist::load_images(const fs::path& path) -> std::vector<std::uint8_t> {
     file.read(reinterpret_cast<char*>(&images_count), sizeof(images_count));
     images_count = swap_bytes(images_count);
 
-    std::uint32_t rows;
     file.read(reinterpret_cast<char*>(&rows), sizeof(rows));
     rows = swap_bytes(rows);
 
-    std::uint32_t columns;
     file.read(reinterpret_cast<char*>(&columns), sizeof(columns));
     columns = swap_bytes(columns);
 
@@ -77,8 +86,8 @@ auto Mnist::load_images(const fs::path& path) -> std::vector<std::uint8_t> {
         std::uint8_t pixel;
         file.read(reinterpret_cast<char*>(&pixel), sizeof(pixel));
 
-        buffer.push_back(pixel);
+        vec.push_back(pixel);
     }
 
-    return buffer;
+    return vec;
 }

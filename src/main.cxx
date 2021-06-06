@@ -17,13 +17,24 @@ auto main(int argc, char** argv) -> int {
     //std::vector<uint8_t> test_labels = mnist.load_labels("./data/mnist/train-labels-idx1-ubyte");
     
     std::vector<uint8_t> train_images = mnist.load_images("./data/mnist/train-images-idx3-ubyte");
+    auto normalized_images = mnist.normalize_images(train_images);
 
-    for (std::size_t idx = 0; idx < 28 * 28 * 10; idx++) {
-        if (idx % 28 == 0 && idx != 0) {
-            std::cout << std::endl;
+    for (std::size_t idx = 0; idx < normalized_images.size(); ++idx) {
+        if ((idx % 28 == 0) && idx != 0) {
+            //std::cout << std::endl;
         }
 
-        std::cout << +train_images[idx] << " ";
+        std::cout << idx << "\n";
+    }
+
+    std::cout << std::endl;
+    
+    for (std::size_t idx = 0; idx < 28 * 28; ++idx) {
+        if ((idx % 28 == 0) && idx != 0) {
+            //std::cout << std::endl;
+        }
+
+        //std::cout << +train_images[idx] << " ";
     }
 
     std::cout << train_images.size() << std::endl;
