@@ -11,6 +11,11 @@ enum class LabelFormat {
     VECTOR,
 };
 
+struct MnistData {
+    std::vector<std::uint8_t> labels;
+    std::vector<std::uint8_t> images;
+};
+
 class Mnist {
 public:
     Mnist() = default;
@@ -23,11 +28,17 @@ public:
     }
 
     [[nodiscard]]
-    auto normalize_images(const std::vector<uint8_t>& vec) -> std::vector<float>;
+    auto get_train_data() -> MnistData;
+    
+    [[nodiscard]]
+    auto get_test_data() -> MnistData; 
+    
+    [[nodiscard]]
+    auto normalize_images(const std::vector<uint8_t>& vec) const -> std::vector<float>;
 
     auto operator=(const Mnist&) -> Mnist& = delete;
 
-//private:
+private:
     static constexpr std::uint32_t LABEL_MAGIC_NUMBER = 0x0000'0801;
     static constexpr std::uint32_t IMAGE_MAGIC_NUMBER = 0x0000'0803;
     static constexpr std::size_t CLASSES = 10;
@@ -39,15 +50,8 @@ public:
     static inline const fs::path TEST_IMAGES_FILENAME{"t10k-images-idx3-ubyte"};
 
     LabelFormat label_format = LabelFormat::SCALAR;
-    std::vector<std::uint8_t> train_labels;
-    std::vector<std::uint8_t> train_images;
-    std::vector<std::uint8_t> test_labels;
-    std::vector<std::uint8_t> test_images;
 
-    std::uint32_t rows;
-    std::uint32_t columns;
-
-    constexpr auto swap_bytes(std::uint32_t& x) const -> std::uint32_t {
+    constexpr auto swap_bytes(std::uint32_t x) const -> std::uint32_t {
         x = ((x << 8) & 0xFF00FF00) | ((x >> 8) & 0xFF00FF);
         return ((x << 16) | (x >> 16));
     }

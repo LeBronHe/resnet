@@ -1,10 +1,29 @@
 #include "mnist.hxx"
 
-#include <algorithm>
 #include <fstream>
 #include <stdexcept>
 
-auto Mnist::normalize_images(const std::vector<uint8_t>& vec) -> std::vector<float> {
+#include <iostream>
+
+auto Mnist::get_train_data() -> MnistData {
+    MnistData train_data {
+        load_labels(BASE_PATH / TRAIN_LABELS_FILENAME),
+        load_images(BASE_PATH / TRAIN_IMAGES_FILENAME)
+    };
+
+    return train_data;
+}
+
+auto Mnist::get_test_data() -> MnistData {
+    MnistData test_data {
+        load_labels(BASE_PATH / TEST_LABELS_FILENAME),
+        load_images(BASE_PATH / TEST_IMAGES_FILENAME)
+    };
+
+    return test_data;
+}
+
+auto Mnist::normalize_images(const std::vector<uint8_t>& vec) const -> std::vector<float> {
     std::vector<float> _vec(vec.size());
 
     std::transform(vec.begin(), vec.end(), _vec.begin(), [](const auto& pixel) {
@@ -76,11 +95,11 @@ auto Mnist::load_images(const fs::path& path) -> std::vector<std::uint8_t> {
     file.read(reinterpret_cast<char*>(&images_count), sizeof(images_count));
     images_count = swap_bytes(images_count);
 
-    file.read(reinterpret_cast<char*>(&rows), sizeof(rows));
-    rows = swap_bytes(rows);
-
-    file.read(reinterpret_cast<char*>(&columns), sizeof(columns));
-    columns = swap_bytes(columns);
+    // File has two 32-bit integers for image dimensions
+    // Not used for anything here so read and forget
+    std::uint32_t tmp;
+    file.read(reinterpret_cast<char*>(&tmp), sizeof(tmp));
+    file.read(reinterpret_cast<char*>(&tmp), sizeof(tmp));
 
     for (std::size_t idx = 0; idx < images_count; idx++) {
         std::uint8_t pixel;
@@ -88,6 +107,8 @@ auto Mnist::load_images(const fs::path& path) -> std::vector<std::uint8_t> {
 
         vec.push_back(pixel);
     }
+
+    file.close();
 
     return vec;
 }
