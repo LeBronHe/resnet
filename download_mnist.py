@@ -7,9 +7,9 @@ from urllib.error import URLError
 
 MNIST_PATH = Path("data/mnist")
 
-BASE_URL: str = "https://storage.googleapis.com/cvdf-datasets/mnist/"
+BASE_URL = "https://storage.googleapis.com/cvdf-datasets/mnist/"
 
-RESOURCES: list[str] = [
+RESOURCES = [
     "train-images-idx3-ubyte.gz",
     "train-labels-idx1-ubyte.gz",
     "t10k-images-idx3-ubyte.gz",
