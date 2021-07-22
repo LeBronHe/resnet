@@ -17,16 +17,16 @@ public:
     ~Mnist() = default;
 
     [[nodiscard]]
-    auto load_train_data() -> std::pair<std::vector<float>, std::vector<float>>;
+    auto load_train_data() -> std::pair<std::vector<float>*, std::vector<float>*>;
     
     [[nodiscard]]
-    auto load_test_data() -> std::pair<std::vector<float>, std::vector<float>>;
+    auto load_test_data() -> std::pair<std::vector<float>*, std::vector<float>*>;
 
-    //auto shuffle(std::vector<float>& vec) -> void;
+    auto shuffle() -> void;
 
     auto operator=(const Mnist&) = delete;
 
-private:
+//private:
     static constexpr std::uint32_t IMAGE_MAGIC_NUMBER = 0x0000'0803;
     static constexpr std::uint32_t LABEL_MAGIC_NUMBER = 0x0000'0801;
     static constexpr std::size_t CLASSES = 10;

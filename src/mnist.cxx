@@ -1,24 +1,23 @@
 #include "mnist.hxx"
 
+#include <algorithm>
 #include <fstream>
 #include <stdexcept>
 
-#include <iostream>
-
 Mnist::Mnist(const fs::path& root) : root{root} {}
 
-auto Mnist::load_train_data() -> std::pair<std::vector<float>, std::vector<float>> {
+auto Mnist::load_train_data() -> std::pair<std::vector<float>*, std::vector<float>*> {
     read_file(train_images, TRAIN_IMAGES_FILENAME);
     read_file(train_labels, TRAIN_LABELS_FILENAME);
 
-    return std::make_pair(train_images, train_labels);
+    return std::make_pair(&train_images, &train_labels);
 }
 
-auto Mnist::load_test_data() -> std::pair<std::vector<float>, std::vector<float>> {
+auto Mnist::load_test_data() -> std::pair<std::vector<float>*, std::vector<float>*> {
     read_file(test_images, TEST_IMAGES_FILENAME);
     read_file(test_labels, TEST_LABELS_FILENAME);
 
-    return std::make_pair(test_images, test_labels);
+    return std::make_pair(&test_images, &test_labels);
 }
 
 auto Mnist::read_header(std::unique_ptr<char[]>& buf, std::size_t idx) const -> std::uint32_t {
@@ -68,4 +67,7 @@ auto Mnist::read_file(std::vector<float>& vec, const fs::path& filename) -> void
     } else {
         throw std::runtime_error("Invalid MNIST file");
     }
+}
+
+auto Mnist::shuffle() -> void {
 }
