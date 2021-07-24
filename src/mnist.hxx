@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -27,15 +28,12 @@ public:
 
     auto shuffle() -> void;
 
-    /*
     template <typename T>
     auto get_tensor(
         const std::vector<float*>* vec,
-        std::size_t inner_buf_size,
         int batch_size,
         std::size_t idx
-    ) const -> Tensor<T>*;
-    */
+    ) const -> std::unique_ptr<Tensor<T>>;
 
     auto operator=(const Mnist&) = delete;
 
@@ -55,6 +53,9 @@ private:
     std::vector<float*> test_images;
     std::vector<float*> test_labels;
 
+    std::uint32_t height;
+    std::uint32_t width;
+
     bool has_train_data = false;
     bool has_test_data = false;
 
@@ -63,18 +64,34 @@ private:
     auto read_file(std::vector<float*>& vec, const fs::path& filename) -> void;
 };
 
-/*
 template <typename T>
 auto Mnist::get_tensor(
     const std::vector<float*>* vec,
-    std::size_t inner_buf_size,
     int batch_size,
     std::size_t idx
-) const -> Tensor<T>* {
-    auto tensor = new Tensor<T>(batch_size, 1, 1, 1);
+) const -> std::unique_ptr<Tensor<T>> {
+    std::unique_ptr<Tensor<T>> tensor;
+    std::size_t inner_buf_size;
+
+    if (vec == &train_images || vec == &test_images) {
+        tensor = std::make_unique<Tensor<T>>(batch_size, 1, height, width);
+        inner_buf_size = 1 * height * width;
+    } else if (vec == &train_labels || vec == &test_labels) {
+        tensor = std::make_unique<Tensor<T>>(batch_size, CLASSES, 1, 1);
+        inner_buf_size = CLASSES;
+    } else {
+        throw std::runtime_error("Failed to get tensor");
+    }
+    
+    for (std::size_t n = 0; n < batch_size; ++n) {
+        std::copy(
+            (*vec)[idx + n],
+            &(*vec)[idx + n][inner_buf_size],
+            &tensor->ptr[inner_buf_size * n]
+        );
+    }
 
     return tensor;
 }
-*/
 
 #endif /* MNIST_HXX */

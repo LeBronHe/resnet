@@ -68,8 +68,8 @@ auto Mnist::read_file(std::vector<float*>& vec, const fs::path& filename) -> voi
     vec.reserve(count);
     
     if (magic_number == IMAGE_MAGIC_NUMBER) {
-        auto height = read_header(buf, 2);
-        auto width = read_header(buf, 3);
+        height = read_header(buf, 2);
+        width = read_header(buf, 3);
 
         auto ptr = reinterpret_cast<std::uint8_t*>(buf.get() + 16);
         for (std::size_t i = 0; i < count; ++i) {
