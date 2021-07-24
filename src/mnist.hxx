@@ -76,6 +76,7 @@ auto Mnist::get_tensor(
     if (vec == &train_images || vec == &test_images) {
         tensor = std::make_unique<Tensor<T>>(batch_size, 1, height, width);
         inner_buf_size = 1 * height * width;
+        tensor->get_desc();
     } else if (vec == &train_labels || vec == &test_labels) {
         tensor = std::make_unique<Tensor<T>>(batch_size, CLASSES, 1, 1);
         inner_buf_size = CLASSES;

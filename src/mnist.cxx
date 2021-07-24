@@ -78,7 +78,7 @@ auto Mnist::read_file(std::vector<float*>& vec, const fs::path& filename) -> voi
 
             for (std::size_t j = 0; j < pixels; ++j) {
                 auto pixel = *ptr++;
-                image[j] = pixel;
+                image[j] = pixel / 255.0f;
             }
 
             vec.emplace_back(image);
