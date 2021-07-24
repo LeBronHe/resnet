@@ -1,30 +1,41 @@
 #ifndef MNIST_HXX
 #define MNIST_HXX
 
+#include <algorithm>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
 #include <utility>
 #include <vector>
 
+#include "tensor.hxx"
+
 namespace fs = std::filesystem;
 
 class Mnist {
 public:
-    using Vector2d = std::vector<std::unique_ptr<float[]>>;
-
     Mnist(const fs::path& root);
     Mnist(const Mnist&) = delete;
 
-    ~Mnist() = default;
+    ~Mnist();
 
     [[nodiscard]]
-    auto load_train_data() -> std::pair<Vector2d*, Vector2d*>;
+    auto load_train_data() -> std::pair<std::vector<float*>*, std::vector<float*>*>;
     
     [[nodiscard]]
-    auto load_test_data() -> std::pair<Vector2d*, Vector2d*>;
+    auto load_test_data() -> std::pair<std::vector<float*>*, std::vector<float*>*>;
 
     auto shuffle() -> void;
+
+    /*
+    template <typename T>
+    auto get_tensor(
+        const std::vector<float*>* vec,
+        std::size_t inner_buf_size,
+        int batch_size,
+        std::size_t idx
+    ) const -> Tensor<T>*;
+    */
 
     auto operator=(const Mnist&) = delete;
 
@@ -39,15 +50,31 @@ private:
     static constexpr const char* TEST_LABELS_FILENAME = "t10k-labels-idx1-ubyte";
     fs::path root;
     
-public:
-    Vector2d train_images;
-    Vector2d train_labels;
-    Vector2d test_images;
-    Vector2d test_labels;
+    std::vector<float*> train_images;
+    std::vector<float*> train_labels;
+    std::vector<float*> test_images;
+    std::vector<float*> test_labels;
+
+    bool has_train_data = false;
+    bool has_test_data = false;
 
     auto read_header(std::unique_ptr<char[]>& buf, std::size_t idx) const -> std::uint32_t;
 
-    auto read_file(Vector2d& vec, const fs::path& filename) -> void;
+    auto read_file(std::vector<float*>& vec, const fs::path& filename) -> void;
 };
+
+/*
+template <typename T>
+auto Mnist::get_tensor(
+    const std::vector<float*>* vec,
+    std::size_t inner_buf_size,
+    int batch_size,
+    std::size_t idx
+) const -> Tensor<T>* {
+    auto tensor = new Tensor<T>(batch_size, 1, 1, 1);
+
+    return tensor;
+}
+*/
 
 #endif /* MNIST_HXX */
